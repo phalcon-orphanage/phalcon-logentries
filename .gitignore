@@ -1,0 +1,9 @@
+.DS_Store
+.idea/
+composer.phar
+composer.lock
+/nbproject
+/vendor
+/build
+tests/_output/*
+tests/_support/_generated/*.php

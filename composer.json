@@ -1,0 +1,42 @@
+{
+  "name": "sergeyklay/phalcon-logentries",
+  "type": "library",
+  "description": "Phalcon library to connect and make log entries using https://logentries.com/",
+  "keywords": [
+    "phalcon",
+    "log",
+    "logentries"
+  ],
+  "homepage": "https://github.com/sergeyklay/phalcon-logentries",
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Phalcon Team",
+      "email": "team@phalconphp.com"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/sergeyklay/phalcon-logentries/issues",
+    "forum": "https://forum.phalconphp.com/",
+    "source": "https://github.com/sergeyklay/phalcon-logentries"
+  },
+  "require": {
+    "php": ">=5.4",
+    "ext-phalcon": ">=2.0.7"
+  },
+  "require-dev": {
+    "codeception/codeception": "*",
+    "squizlabs/php_codesniffer": "2.*"
+  },
+  "autoload": {
+    "psr-4": { "Phalcon\\": "src/" }
+  },
+  "autoload-dev": {
+    "psr-4": { "Phalcon\\Test\\": "tests/Phalcon/" }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    }
+  }
+}
