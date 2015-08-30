@@ -101,17 +101,23 @@ class Logentries extends Adapter implements AdapterInterface
             'datahub_address'   => '',
             'datahub_port'      => self::LE_PORT,
             'host_name_enabled' => false,
-            'host_name'         => false,
+            'host_name'         => '',
             'host_id'           => '',
             'persistent'        => true,
-            'use_ssl'           => false
+            'use_ssl'           => false, // possible problem here with ssl not sending
+            'connection_timeout'=> ini_get('default_socket_timeout')
         ];
 
         $this->options = array_merge($defaults, $options);
 
+        register_shutdown_function([$this, 'close']);
+
         try {
             if ($this->isDatahub()) {
                 $this->validateDataHubIP($this->options['datahub_address']);
+
+                // if datahub is being used the token should be set to null
+                $this->options['token'] = null;
             } else {
                 $this->validateToken($this->options['token']);
             }
@@ -128,9 +134,7 @@ class Logentries extends Adapter implements AdapterInterface
                 $this->options['host_id'] = 'host_ID=' . $this->options['host_id'];
             }
 
-            $this->connectionTimeout = (float) ini_get('default_socket_timeout');
-
-            $this->createSocket();
+            $this->connectionTimeout = (float) $this->options['connection_timeout'];
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode());
         }
@@ -157,9 +161,14 @@ class Logentries extends Adapter implements AdapterInterface
 
     public function isTLS()
     {
-        return !$this->options['use_ssl'];
+        return (bool) $this->options['use_ssl'];
     }
 
+    /**
+     * Check if datahub is enabled
+     *
+     * @return bool
+     */
     public function isDatahub()
     {
         return (bool) $this->options['datahub_enabled'];
@@ -209,7 +218,7 @@ class Logentries extends Adapter implements AdapterInterface
      */
     public function logInternal($message, $type, $timestamp, array $context = [])
     {
-        if (!is_resource($this->socket)) {
+        if (!$this->connect()) {
             throw new Exception('Cannot send message to the Logentries because connection is invalid.');
         }
 
@@ -218,6 +227,20 @@ class Logentries extends Adapter implements AdapterInterface
         $this->writeToSocket($multiline);
     }
 
+    protected function connect()
+    {
+        if (!$this->isConnected()) {
+            $this->createSocket();
+        }
+
+        return $this->isConnected();
+    }
+
+    /**
+     * Check if a DataHub IP Address has been entered
+     *
+     * @param string $datahubIPAddress DataHub IP Address
+     */
     protected function validateDataHubIP($datahubIPAddress)
     {
         if (empty($datahubIPAddress)) {
@@ -225,6 +248,11 @@ class Logentries extends Adapter implements AdapterInterface
         }
     }
 
+    /**
+     * Check if a Token has been entered
+     *
+     * @param string $token Token
+     */
     public function validateToken($token)
     {
         if (empty($token)) {
@@ -234,15 +262,15 @@ class Logentries extends Adapter implements AdapterInterface
 
     protected function writeToSocket($line)
     {
+        $line = rtrim($line, PHP_EOL). PHP_EOL;
+
         if ($this->isHostNameEnabled()) {
             $finalLine = $this->options['token'] .
                 ' ' . $this->options['host_id'] .
                 ' ' . $this->options['host_name'] .
                 ' ' . $line;
         } else {
-            $finalLine = $this->options['token'] .
-                ' ' . $this->options['host_id'] .
-                ' ' . $line;
+            $finalLine = $this->options['token'] . $this->options['host_id'] . ' ' . $line;
         }
 
         if ($this->isConnected()) {
@@ -273,7 +301,10 @@ class Logentries extends Adapter implements AdapterInterface
 
             if (!is_resource($resource)) {
                 trigger_error(
-                    "Couldn't create socket for Logentries Logger, reason: " . socket_strerror(socket_last_error()),
+                    sprintf(
+                        "Couldn't create socket for Logentries Logger, reason: %s",
+                        socket_strerror(socket_last_error($resource))
+                    ),
                     E_USER_ERROR
                 );
             }
