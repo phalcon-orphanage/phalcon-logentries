@@ -32,7 +32,7 @@
     "psr-4": { "Phalcon\\": "src/" }
   },
   "autoload-dev": {
-    "psr-4": { "Phalcon\\Test\\": "tests/Phalcon/" }
+    "psr-4": { "Phalcon\\Tests\\": "tests/unit/" }
   },
   "extra": {
     "branch-alias": {
