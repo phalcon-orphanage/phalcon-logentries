@@ -1,5 +1,22 @@
 <?php
 
+/*
+ +------------------------------------------------------------------------+
+ | Phalcon Framework                                                      |
+ +------------------------------------------------------------------------+
+ | Copyright (c) 2011-2015 Phalcon Team (http://www.phalconphp.com)       |
+ +------------------------------------------------------------------------+
+ | This source file is subject to the New BSD License that is bundled     |
+ | with this package in the file docs/LICENSE.txt.                        |
+ |                                                                        |
+ | If you did not receive a copy of the license and are unable to         |
+ | obtain it through the world-wide-web, please send an email             |
+ | to license@phalconphp.com so we can send you a copy immediately.       |
+ +------------------------------------------------------------------------+
+ | Authors: Serghei Iakovlev <serghei@phalconphp.com>                     |
+ +------------------------------------------------------------------------+
+ */
+
 namespace Phalcon\Logger\Adapter;
 
 use Phalcon\Logger\Adapter;
@@ -7,20 +24,46 @@ use Phalcon\Logger\AdapterInterface;
 use Phalcon\Logger\Exception;
 use Phalcon\Logger\Formatter\Line as LineFormatter;
 
+/**
+ * Phalcon\Logger\Adapter\Logentries
+ *
+ * Adapter to store logs to Logentries
+ *
+ *<code>
+ *  $logger = new \Phalcon\Logger\Adapter\Logentries(['token' => 'ad43g-dfd34-df3ed-3d3d3']);
+ *  $logger->log("This is a message");
+ *  $logger->log("This is an error", \Phalcon\Logger::ERROR);
+ *  $logger->error("This is another error");
+ *  $logger->close();
+ *</code>
+ *
+ * @package Phalcon\Logger\Adapter
+ */
 class Logentries extends Adapter implements AdapterInterface
 {
-    const STATUS_SOCKET_OPEN   = 1;
-    const STATUS_SOCKET_FAILED = 2;
-    const STATUS_SOCKET_CLOSED = 3;
+    /**
+     * Logentries server address for receiving logs
+     * @type string
+     */
+    const LE_ADDRESS = 'tcp://api.logentries.com';
 
-    const LE_ADDRESS = 'api.logentries.com';
+    /**
+     * Logentries server address for receiving logs via TLS
+     * @type string
+     */
+    const LE_TLS_ADDRESS = 'tls://api.logentries.com';
+
+    /**
+     * Logentries server port for receiving logs by token
+     * @type int
+     */
     const LE_PORT = 10000;
 
     /**
-     * Name
-     * @var string
+     * Logentries server port for receiving logs with TLS by token
+     * @type int
      */
-    protected $name;
+    const LE_TLS_PORT = 20000;
 
     /**
      * Adapter options
@@ -35,51 +78,62 @@ class Logentries extends Adapter implements AdapterInterface
     protected $socket = null;
 
     /**
-     * Socket status
-     * @var int
+     * Connection timeout
+     * @var float
      */
-    protected $socketStatus = self::STATUS_SOCKET_CLOSED;
+    protected $connectionTimeout = 0.0;
+
+    protected $errno = 0;
+    protected $errstr = '';
 
     /**
      * Phalcon\Logger\Adapter\Logentries constructor
      *
-     * @param string $name
      * @param array $options
      *
      * @throws \Phalcon\Logger\Exception
      */
-    public function __construct($name = 'phalcon', $options = [])
+    public function __construct(array $options = [])
     {
         $defaults = [
-            'token'    => '',
-            'use_tcp'  => true,
-            'severity' => false
+            'token'             => '',
+            'datahub_enabled'   => false,
+            'datahub_address'   => '',
+            'datahub_port'      => self::LE_PORT,
+            'host_name_enabled' => false,
+            'host_name'         => false,
+            'host_id'           => '',
+            'persistent'        => true,
+            'use_ssl'           => false
         ];
-
-        if ($name) {
-            $this->name = $name;
-        }
 
         $this->options = array_merge($defaults, $options);
 
-        if (empty($this->options['token'])) {
-            throw new Exception('Logentries Token was not provided');
+        try {
+            if ($this->isDatahub()) {
+                $this->validateDataHubIP($this->options['datahub_address']);
+            } else {
+                $this->validateToken($this->options['token']);
+            }
+
+            if ($this->isHostNameEnabled()) {
+                if (empty($this->options['host_name'])) {
+                    $this->options['host_name'] = 'host_name='.gethostname();
+                } else {
+                    $this->options['host_name'] = 'host_name=' . $this->options['host_name'];
+                }
+            }
+
+            if (!empty($this->options['host_id'])) {
+                $this->options['host_id'] = 'host_ID=' . $this->options['host_id'];
+            }
+
+            $this->connectionTimeout = (float) ini_get('default_socket_timeout');
+
+            $this->createSocket();
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
-
-        $this->createSocket();
-    }
-
-    /**
-     * Setter for name
-     *
-     * @param string $name
-     * @return $this
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
     }
 
     /**
@@ -96,6 +150,53 @@ class Logentries extends Adapter implements AdapterInterface
         return $this->_formatter;
     }
 
+    public function isPersistent()
+    {
+        return (bool) $this->options['persistent'];
+    }
+
+    public function isTLS()
+    {
+        return !$this->options['use_ssl'];
+    }
+
+    public function isDatahub()
+    {
+        return (bool) $this->options['datahub_enabled'];
+    }
+
+    public function isHostNameEnabled()
+    {
+        return (bool) $this->options['host_name_enabled'];
+    }
+
+    public function isConnected()
+    {
+        return is_resource($this->socket) && !feof($this->socket);
+    }
+
+    public function getPort()
+    {
+        if ($this->isTLS()) {
+            return self::LE_TLS_PORT;
+        } elseif ($this->isDatahub()) {
+            return $this->options['datahub_port'];
+        }
+
+        return self::LE_PORT;
+    }
+
+    public function getAddress()
+    {
+        if ($this->isTLS() && !$this->isDatahub()) {
+            return self::LE_TLS_ADDRESS;
+        } elseif ($this->isDatahub()) {
+            return $this->options['datahub_address'];
+        }
+
+        return self::LE_ADDRESS;
+    }
+
     /**
      * Writes the log to the file itself
      *
@@ -109,55 +210,87 @@ class Logentries extends Adapter implements AdapterInterface
     public function logInternal($message, $type, $timestamp, array $context = [])
     {
         if (!is_resource($this->socket)) {
-            throw new Exception("Cannot send message to the Logentries because connection is invalid.");
+            throw new Exception('Cannot send message to the Logentries because connection is invalid.');
         }
 
-        $line = $this->getFormatter()->format($message, $type, $timestamp, $context);
+        $multiline = $this->substituteNewline($this->getFormatter()->format($message, $type, $timestamp, $context));
 
-        $this->writeToSocket($line);
+        $this->writeToSocket($multiline);
+    }
+
+    protected function validateDataHubIP($datahubIPAddress)
+    {
+        if (empty($datahubIPAddress)) {
+            trigger_error('Logentries Datahub IP Address was not provided', E_USER_ERROR);
+        }
+    }
+
+    public function validateToken($token)
+    {
+        if (empty($token)) {
+            trigger_error('Logentries Token was not provided', E_USER_ERROR);
+        }
     }
 
     protected function writeToSocket($line)
     {
-        if ($this->socketStatus == self::STATUS_SOCKET_OPEN) {
-            $finalLine = $this->options['token'] . $line;
-            socket_write($this->socket, $finalLine, strlen($finalLine));
+        if ($this->isHostNameEnabled()) {
+            $finalLine = $this->options['token'] .
+                ' ' . $this->options['host_id'] .
+                ' ' . $this->options['host_name'] .
+                ' ' . $line;
+        } else {
+            $finalLine = $this->options['token'] .
+                ' ' . $this->options['host_id'] .
+                ' ' . $line;
         }
+
+        if ($this->isConnected()) {
+            for ($written = 0; $written < strlen($finalLine); $written += $fwrite) {
+                $fwrite = fwrite($this->socket, substr($finalLine, $written));
+                if (false === $fwrite) {
+                    return $written;
+                }
+            }
+
+            return $written;
+        }
+
+        return 0;
     }
 
     protected function createSocket()
     {
         try {
-            if (true == $this->options['use_tcp']) {
-                $this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+            $port = $this->getPort();
+            $address = $this->getAddress();
+
+            if ($this->isPersistent()) {
+                $resource = pfsockopen($address, $port, $this->errno, $this->errstr, $this->connectionTimeout);
             } else {
-                $this->socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+                $resource = fsockopen($address, $port, $this->errno, $this->errstr, $this->connectionTimeout);
             }
 
-            if (!is_resource($this->socket)) {
+            if (!is_resource($resource)) {
                 trigger_error(
                     "Couldn't create socket for Logentries Logger, reason: " . socket_strerror(socket_last_error()),
                     E_USER_ERROR
                 );
-                $this->socketStatus = self::STATUS_SOCKET_FAILED;
             }
 
-            $result = socket_connect($this->socket, self::LE_ADDRESS, self::LE_PORT);
-
-            if (false == $result) {
-                trigger_error(
-                    "Couldn't connect to Logentries, reason: " . socket_strerror(socket_last_error()),
-                    E_USER_ERROR
-                );
-                $this->socketStatus = self::STATUS_SOCKET_FAILED;
+            if (is_resource($resource) && !feof($resource)) {
+                $this->socket = $resource;
             }
-
-            socket_set_nonblock($this->socket);
-            $this->socketStatus = self::STATUS_SOCKET_OPEN;
         } catch (Exception $e) {
             trigger_error("Error connecting to Logentries, reason: " . $e->getMessage(), E_USER_ERROR);
-            $this->socketStatus = self::STATUS_SOCKET_FAILED;
         }
+    }
+
+    protected function substituteNewline($line)
+    {
+        $newLine = str_replace(PHP_EOL, chr(13), $line);
+
+        return $newLine;
     }
 
     /**
@@ -166,8 +299,8 @@ class Logentries extends Adapter implements AdapterInterface
     public function close()
     {
         if (is_resource($this->socket)) {
-            socket_close($this->socket);
-            $this->socketStatus = self::STATUS_SOCKET_CLOSED;
+            fclose($this->socket);
+            $this->socket = null;
         }
     }
 }
