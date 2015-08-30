@@ -112,32 +112,28 @@ class Logentries extends Adapter implements AdapterInterface
 
         register_shutdown_function([$this, 'close']);
 
-        try {
-            if ($this->isDatahub()) {
-                $this->validateDataHubIP($this->options['datahub_address']);
+        if ($this->isDatahub()) {
+            $this->validateDataHubIP($this->options['datahub_address']);
 
-                // if datahub is being used the token should be set to null
-                $this->options['token'] = null;
-            } else {
-                $this->validateToken($this->options['token']);
-            }
-
-            if ($this->isHostNameEnabled()) {
-                if (empty($this->options['host_name'])) {
-                    $this->options['host_name'] = 'host_name='.gethostname();
-                } else {
-                    $this->options['host_name'] = 'host_name=' . $this->options['host_name'];
-                }
-            }
-
-            if (!empty($this->options['host_id'])) {
-                $this->options['host_id'] = 'host_ID=' . $this->options['host_id'];
-            }
-
-            $this->connectionTimeout = (float) $this->options['connection_timeout'];
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
+            // if datahub is being used the token should be set to null
+            $this->options['token'] = null;
+        } else {
+            $this->validateToken($this->options['token']);
         }
+
+        if ($this->isHostNameEnabled()) {
+            if (empty($this->options['host_name'])) {
+                $this->options['host_name'] = 'host_name='.gethostname();
+            } else {
+                $this->options['host_name'] = 'host_name=' . $this->options['host_name'];
+            }
+        }
+
+        if (!empty($this->options['host_id'])) {
+            $this->options['host_id'] = 'host_ID=' . $this->options['host_id'];
+        }
+
+        $this->connectionTimeout = (float) $this->options['connection_timeout'];
     }
 
     /**
@@ -240,11 +236,12 @@ class Logentries extends Adapter implements AdapterInterface
      * Check if a DataHub IP Address has been entered
      *
      * @param string $datahubIPAddress DataHub IP Address
+     * @throws \Phalcon\Logger\Exception
      */
     protected function validateDataHubIP($datahubIPAddress)
     {
         if (empty($datahubIPAddress)) {
-            trigger_error('Logentries Datahub IP Address was not provided', E_USER_ERROR);
+            throw new Exception('Logentries Datahub IP Address was not provided');
         }
     }
 
@@ -252,11 +249,12 @@ class Logentries extends Adapter implements AdapterInterface
      * Check if a Token has been entered
      *
      * @param string $token Token
+     * @throws \Phalcon\Logger\Exception
      */
     public function validateToken($token)
     {
         if (empty($token)) {
-            trigger_error('Logentries Token was not provided', E_USER_ERROR);
+            throw new Exception('Logentries Token was not provided');
         }
     }
 
@@ -289,31 +287,17 @@ class Logentries extends Adapter implements AdapterInterface
 
     protected function createSocket()
     {
-        try {
-            $port = $this->getPort();
-            $address = $this->getAddress();
+        $port = $this->getPort();
+        $address = $this->getAddress();
 
-            if ($this->isPersistent()) {
-                $resource = pfsockopen($address, $port, $this->errno, $this->errstr, $this->connectionTimeout);
-            } else {
-                $resource = fsockopen($address, $port, $this->errno, $this->errstr, $this->connectionTimeout);
-            }
+        if ($this->isPersistent()) {
+            $resource = pfsockopen($address, $port, $this->errno, $this->errstr, $this->connectionTimeout);
+        } else {
+            $resource = fsockopen($address, $port, $this->errno, $this->errstr, $this->connectionTimeout);
+        }
 
-            if (!is_resource($resource)) {
-                trigger_error(
-                    sprintf(
-                        "Couldn't create socket for Logentries Logger, reason: %s",
-                        socket_strerror(socket_last_error($resource))
-                    ),
-                    E_USER_ERROR
-                );
-            }
-
-            if (is_resource($resource) && !feof($resource)) {
-                $this->socket = $resource;
-            }
-        } catch (Exception $e) {
-            trigger_error("Error connecting to Logentries, reason: " . $e->getMessage(), E_USER_ERROR);
+        if (is_resource($resource) && !feof($resource)) {
+            $this->socket = $resource;
         }
     }
 
