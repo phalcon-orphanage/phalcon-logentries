@@ -56,7 +56,7 @@ $ php composer.phar install
 
 ## Tests
 
-Phosphorum use [Codeception][6] unit test.
+Phosphorum use [Codeception][4] unit test.
 
 First you need to re-generate base classes for all suites:
 
@@ -72,17 +72,17 @@ $ vendor/bin/codecept run
 $ vendor/bin/codecept run --debug # Detailed output
 ```
 
-More details about Console Commands see [here][7].
+More details about Console Commands see [here][6].
 
 ## License
 
-Phalcon Logentries is open-sourced software licensed under the [New BSD License][8]. © Phalcon Framework Team and contributors
+Phalcon Logentries is open-sourced software licensed under the [New BSD License][7].
+© Phalcon Framework Team and contributors
 
 [1]: https://logentries.com/
 [2]: https://getcomposer.org/
 [3]: https://github.com/phalcon/cphalcon/releases
 [4]: http://codeception.com/
 [5]: https://github.com/squizlabs/PHP_CodeSniffer
-[6]: http://codeception.com
-[7]: http://codeception.com/docs/reference/Commands
-[8]: https://github.com/phalcon/forum/blob/master/docs/LICENSE.md
+[6]: http://codeception.com/docs/reference/Commands
+[7]: https://github.com/phalcon/forum/blob/master/docs/LICENSE.md
