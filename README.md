@@ -3,8 +3,6 @@
 Phalcon library to connect and make log entries using [Logentries][1].
 You can adapt it to your own needs or improve it if you want.
 
-**Work In Progress. Do not use this version in production!**
-
 Please write us if you have any feedback.
 
 Thanks.
