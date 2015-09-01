@@ -71,6 +71,8 @@ $di->set('logger', function() {
         'token' => getenv('LOGENTRIES_TOKEN'),
         // optional parameters
     ]);
+    
+    return $logger;
 });
 ```
 
