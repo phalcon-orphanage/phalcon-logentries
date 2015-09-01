@@ -55,6 +55,28 @@ Run the composer installer:
 $ php composer.phar install
 ```
 
+## Setup
+
+When you have made your account on Logentries. Log in and create a new host with a name that best represents your app.
+Then, click on your new host and inside that, create a new log file with a name that represents what you are logging,
+example: `myerrors`. Bear in mind, these names are purely for your own benefit. Under source type, select Token TCP
+and click Register. You will notice a token appear beside the name of the log, these is a unique identifier that the logging
+library will use to access that logfile. You can copy and paste this now or later.
+
+Then create adapter instance:
+
+```php
+$di->set('logger', function() {
+    $logger = new \Phalcon\Logger\Adapter\Logentries([
+        'token' => getenv('LOGENTRIES_TOKEN'),
+        // optional parameters
+    ]);
+});
+```
+
+`LOGENTRIES_TOKEN` is the token we copied earlier from the Logentries UI.
+It associates that logger with the log file on Logentries.
+
 ## Tests
 
 Phosphorum use [Codeception][4] unit test.
