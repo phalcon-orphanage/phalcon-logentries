@@ -82,11 +82,11 @@ It associates that logger with the log file on Logentries.
 ### Adding a Custom Host Name and Host ID sent in your PHP log events
 
 To Set a custom host name that will appear in your PHP log events as Key / Value pairs
-pass to the Logentries __constructor the following parameters:
+pass to the `Logentries::__constructor` the following parameters:
 
-* `host_name_enabled`: `true`
-* `host_name`: `Custom_host_name_here`
-* `host_id`: `Custom_ID_here_12345`
+- **host_name_enabled**
+- **host_name**
+- **host_id**
 
 For example:
 
