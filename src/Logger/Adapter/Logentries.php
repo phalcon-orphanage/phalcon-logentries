@@ -172,7 +172,7 @@ class Logentries extends Adapter implements AdapterInterface
 
     public function isHostNameEnabled()
     {
-        return (bool) $this->options['host_name_enabled'];
+            return (bool) $this->options['host_name_enabled'];
     }
 
     public function isConnected()
