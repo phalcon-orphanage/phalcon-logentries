@@ -79,6 +79,37 @@ $di->set('logger', function() {
 `LOGENTRIES_TOKEN` is the token we copied earlier from the Logentries UI.
 It associates that logger with the log file on Logentries.
 
+### Adding a Custom Host Name and Host ID sent in your PHP log events
+
+To Set a custom host name that will appear in your PHP log events as Key / Value pairs
+pass to the Logentries __constructor the following parameters:
+
+* `host_name_enabled`: `true`
+* `host_name`: `Custom_host_name_here`
+* `host_id`: `Custom_ID_here_12345`
+
+For example:
+
+```php
+$di->set('logger', function() {
+    $logger = new \Phalcon\Logger\Adapter\Logentries([
+        'token'             => getenv('LOGENTRIES_TOKEN'),
+        'host_name_enabled' => true,
+        'host_name'         => 'Custom_host_name_here',
+        'host_id'           => 'Custom_ID_here_12345'
+    ]);
+
+    return $logger;
+});
+```
+
+The `host_name` param can be left as an empty string, and the Logentries component will automatically attempt to
+assign a host name from your local host machine and use that as the custom host name.
+
+To set a custom Host ID that will appear in your PHP log events as Key / Value pairs:
+* Enter a value instead of the empty string in `host_id => ''`;
+* If no `host_id` is set and the empty string is left unaltered, no Host ID or Key / Value pairing will appear in your PHP logs.
+
 ## Tests
 
 Phosphorum use [Codeception][4] unit test.
