@@ -22,7 +22,7 @@
   },
   "require": {
     "php": ">=5.4",
-    "ext-phalcon": ">=2.0.7"
+    "ext-phalcon": ">=2.0.8"
   },
   "require-dev": {
     "codeception/codeception": "*",
