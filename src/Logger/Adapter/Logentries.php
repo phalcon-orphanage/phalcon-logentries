@@ -30,11 +30,15 @@ use Phalcon\Logger\Formatter\Line as LineFormatter;
  * Adapter to store logs to Logentries
  *
  *<code>
- *  $logger = new \Phalcon\Logger\Adapter\Logentries(['token' => 'ad43g-dfd34-df3ed-3d3d3']);
- *  $logger->log("This is a message");
- *  $logger->log("This is an error", \Phalcon\Logger::ERROR);
- *  $logger->error("This is another error");
- *  $logger->close();
+ * use Phalcon\Logger;
+ * use Phalcon\Logger\Adapter\Logentries;
+ *
+ * $logger = new Logentries(['token' => 'ad43g-dfd34-df3ed-3d3d3']);
+ * $logger->log("This is a message");
+ * $logger->log("This is an error", Logger::ERROR);
+ * $logger->error("This is another error");
+ *
+ * $logger->close();
  *</code>
  *
  * @package Phalcon\Logger\Adapter

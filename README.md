@@ -66,8 +66,10 @@ library will use to access that logfile. You can copy and paste this now or late
 Then create adapter instance:
 
 ```php
+use Phalcon\Logger\Adapter\Logentries;
+
 $di->set('logger', function() {
-    $logger = new \Phalcon\Logger\Adapter\Logentries([
+    $logger = new Logentries([
         'token' => getenv('LOGENTRIES_TOKEN'),
         // optional parameters
     ]);
@@ -91,8 +93,10 @@ pass to the `Logentries::__constructor` the following parameters:
 For example:
 
 ```php
+use Phalcon\Logger\Adapter\Logentries;
+
 $di->set('logger', function() {
-    $logger = new \Phalcon\Logger\Adapter\Logentries([
+    $logger = new Logentries([
         'token'             => getenv('LOGENTRIES_TOKEN'),
         'host_name_enabled' => true,
         'host_name'         => 'Custom_host_name_here',
@@ -109,6 +113,37 @@ assign a host name from your local host machine and use that as the custom host 
 To set a custom Host ID that will appear in your PHP log events as Key / Value pairs:
 * Enter a value instead of the empty string in `host_id => ''`;
 * If no `host_id` is set and the empty string is left unaltered, no Host ID or Key / Value pairing will appear in your PHP logs.
+
+## Creating a Log
+
+The example below shows how to create a log and add messages to it:
+
+```php
+use Phalcon\Logger;
+use Phalcon\Logger\Adapter\Logentries as LeAdapter;
+
+$logger = new LeAdapter(['token' => 'ad43g-dfd34-df3ed-3d3d3']);
+
+// These are the different log levels available:
+$logger->critical('This is a critical message');
+$logger->emergency('This is an emergency message');
+$logger->debug('This is a debug message');
+$logger->error('This is an error message');
+$logger->info('This is an info message');
+$logger->notice('This is a notice message');
+$logger->warning('This is a warning message');
+$logger->alert('This is an alert message');
+
+
+// You can also use the log() method with a Logger constant:
+$logger->log('This is another error message', Logger::ERROR);
+
+// If no constant is given, DEBUG is assumed.
+$logger->log('This is a message');
+
+// Closes the logger
+$logger->close();
+```
 
 ## Tests
 
