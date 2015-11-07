@@ -1,7 +1,8 @@
 # Phalcon Logentries
 
+[![Software License](https://img.shields.io/badge/license-BSD--3-brightgreen.svg?style=flat-square)](docs/LICENSE.md)
 [![Build Status](https://img.shields.io/travis/sergeyklay/phalcon-logentries/master.svg?style=flat-square)](https://travis-ci.org/sergeyklay/phalcon-logentries)
-[![Software License](https://img.shields.io/badge/license-BSD--3-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Total Downloads](https://img.shields.io/packagist/dt/sergeyklay/phalcon-logentries.svg?style=flat-square)](https://packagist.org/packages/sergeyklay/phalcon-logentries)
 
 Phalcon library to connect and make log entries using [Logentries][1].
 You can adapt it to your own needs or improve it if you want.
