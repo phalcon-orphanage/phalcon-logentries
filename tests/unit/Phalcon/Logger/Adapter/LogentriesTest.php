@@ -24,6 +24,10 @@ namespace Phalcon\Tests\Logger\Adapter;
 use Codeception\TestCase\Test as TestCase;
 use Phalcon\Logger\Adapter\Logentries;
 
+/**
+ * Logentries Test
+ * @package Phalcon\Tests\Logger\Adapter
+ */
 class LogentriesTest extends TestCase
 {
     /**
@@ -31,6 +35,20 @@ class LogentriesTest extends TestCase
      * @var \UnitTester
      */
     protected $tester;
+
+    /**
+     * executed before each test
+     */
+    protected function _before()
+    {
+    }
+
+    /**
+     * executed after each test
+     */
+    protected function _after()
+    {
+    }
 
     protected function setUp()
     {
@@ -43,12 +61,12 @@ class LogentriesTest extends TestCase
 
     public function testShouldReturnLogentriesInstanceWithTokenParam()
     {
-        $logger = new Logentries(['token' => 'abcdef']);
+        $logger = new Logentries(['token' => 'ad43g-dfd34-df3ed-3d3d3']);
         $this->assertInstanceOf('Phalcon\Logger\Adapter\Logentries', $logger);
     }
 
     /**
-     * @expectedException \Phalcon\Logger\Exception
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage Logentries Token was not provided
      */
     public function testShouldThrowsLoggerExceptionWhenTokenWasNotPassed()
