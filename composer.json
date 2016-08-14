@@ -21,12 +21,12 @@
     "source": "https://github.com/sergeyklay/phalcon-logentries"
   },
   "require": {
-    "php": ">=5.4",
-    "ext-phalcon": ">=2.0.8"
+    "php": ">=5.5",
+    "ext-phalcon": "~2.0.13"
   },
   "require-dev": {
-    "codeception/codeception": "*",
-    "squizlabs/php_codesniffer": "2.*"
+    "codeception/codeception": "~2.2",
+    "squizlabs/php_codesniffer": "~2.6"
   },
   "autoload": {
     "psr-4": { "Phalcon\\": "src/" }

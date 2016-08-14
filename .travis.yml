@@ -1,23 +1,41 @@
 language: php
 
+sudo: required
+dist: precise
+
 php:
-  - 5.4
   - 5.5
   - 5.6
+  - 7.0
 
-sudo: false
+git:
+  depth: 1
 
 cache:
+  apt: true
+  ccache: true
+  timeout: 691200
   directories:
+    - .temp
     - vendor
+    - $HOME/.ccache
     - $HOME/.composer/cache
 
+env:
+  matrix:
+    - PHALCON_VERSION="phalcon-v2.0.13"
+    - PHALCON_VERSION="v3.0.0"
+
+before_install:
+  - phpenv config-rm xdebug.ini
+  - composer self-update -q
+  - travis_retry composer install --prefer-dist --no-interaction --ignore-platform-reqs
+  - git clone -q --depth=1 https://github.com/phalcon/cphalcon.git -b ${PHALCON_VERSION}
+
 install:
-  - composer self-update
-  - git clone -q --depth=1 https://github.com/phalcon/cphalcon.git -b phalcon-v2.0.8
-  - (cd cphalcon/ext; export CFLAGS="-g3 -O1 -fno-delete-null-pointer-checks -Wall"; phpize &> /dev/null && ./configure --silent --enable-phalcon &> /dev/null && make --silent -j4 > /dev/null && make --silent install && phpenv config-add ../unit-tests/ci/phalcon.ini &> /dev/null)
-  - php -r 'echo \Phalcon\Version::get()."\n";'
-  - composer install --prefer-source --no-interaction
+  - (cd cphalcon/build; bash install &>/dev/null)
+  - phpenv config-add ./tests/_ci/phalcon.ini &> /dev/null
+  - php --ri phalcon
 
 script:
   - vendor/bin/phpcs --standard=PSR2 --report=emacs --extensions=php --warning-severity=0 src/
