@@ -22,6 +22,7 @@ namespace Phalcon\Logger\Adapter;
 use Phalcon\Logger\Adapter;
 use Phalcon\Logger\AdapterInterface;
 use Phalcon\Logger\Exception;
+use InvalidArgumentException;
 use Phalcon\Logger\Formatter\Line as LineFormatter;
 
 /**
@@ -127,7 +128,7 @@ class Logentries extends Adapter implements AdapterInterface
 
         if ($this->isHostNameEnabled()) {
             if (empty($this->options['host_name'])) {
-                $this->options['host_name'] = 'host_name='.gethostname();
+                $this->options['host_name'] = 'host_name=' . gethostname();
             } else {
                 $this->options['host_name'] = 'host_name=' . $this->options['host_name'];
             }
@@ -253,12 +254,12 @@ class Logentries extends Adapter implements AdapterInterface
      * Check if a Token has been entered
      *
      * @param string $token Token
-     * @throws \Phalcon\Logger\Exception
+     * @throws \InvalidArgumentException
      */
-    public function validateToken($token)
+    protected function validateToken($token)
     {
         if (empty($token)) {
-            throw new Exception('Logentries Token was not provided');
+            throw new InvalidArgumentException('Logentries Token was not provided');
         }
     }
 
