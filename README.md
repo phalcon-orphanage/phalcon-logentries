@@ -24,13 +24,13 @@ switch to the relevant branch.
 To use this library on your machine, you need at least:
 
 * [Composer][2]
-* PHP >= 5.4
+* PHP >= 5.5
 * Latest stable [Phalcon Framework release][3] extension enabled
 
-Additional requirements:
+Development requirements:
 
-* [Codeception][4] >= 2.1.x (for testing)
-* [PHP_CodeSniffer][5] >= 2.x (for testing)
+* [Codeception][4]
+* [PHP_CodeSniffer][5]
 
 ### Installation
 
@@ -45,7 +45,7 @@ Create the composer.json file as follows:
 ```json
 {
     "require": {
-        "sergeyklay/phalcon-logentries": "dev-master"
+        "sergeyklay/phalcon-logentries": "~1.1"
     }
 }
 ```
