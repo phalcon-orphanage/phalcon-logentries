@@ -22,6 +22,8 @@ cache:
     - $HOME/.composer/cache
 
 env:
+  global:
+    - PHALCON_SRC_PATH="${TRAVIS_BUILD_DIR}/cphalcon"
   matrix:
     - PHALCON_VERSION="phalcon-v2.0.13"
     - PHALCON_VERSION="v3.0.0"
@@ -30,10 +32,10 @@ before_install:
   - phpenv config-rm xdebug.ini
   - composer self-update -q
   - travis_retry composer install --prefer-dist --no-interaction --ignore-platform-reqs
-  - git clone -q --depth=1 https://github.com/phalcon/cphalcon.git -b ${PHALCON_VERSION}
+  - git clone --depth=1 --branch=${PHALCON_VERSION} https://github.com/phalcon/cphalcon.git ${PHALCON_SRC_PATH}
 
 install:
-  - (cd cphalcon/build; bash install &>/dev/null)
+  - (cd ${PHALCON_SRC_PATH}/build; bash install &>/dev/null)
   - phpenv config-add ./tests/_ci/phalcon.ini &> /dev/null
   - php --ri phalcon
 
