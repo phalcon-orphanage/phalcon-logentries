@@ -46,6 +46,13 @@ script:
 
 notifications:
   email:
-    - serghei@phalconphp.com
+    recipients:
+      - serghei@phalconphp.com
     on_success: change
     on_failure: always
+
+addons:
+  apt:
+    packages:
+      - gdb
+      - re2c
