@@ -24,7 +24,7 @@ cache:
 env:
   matrix:
     - PHALCON_VERSION="3.0.x"
-    - PHALCON_VERSION="v3.0.0"
+    - PHALCON_VERSION="v3.0.1"
 
 before_install:
   - phpenv config-rm xdebug.ini
@@ -42,15 +42,15 @@ script:
   - vendor/bin/codecept build
   - vendor/bin/codecept run
 
-notifications:
-  email:
-    recipients:
-      - serghei@phalconphp.com
-    on_success: change
-    on_failure: always
-
 addons:
   apt:
     packages:
       - gdb
       - re2c
+
+notifications:
+  email:
+    recipients:
+      - build@phalconphp.com
+    on_success: change
+    on_failure: always
