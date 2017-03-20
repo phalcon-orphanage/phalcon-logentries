@@ -47,14 +47,13 @@ before_install:
 install:
   - bash ./tests/_ci/install_zephir.sh
   - ln -s ${TRAVIS_BUILD_DIR}/.temp ${TRAVIS_BUILD_DIR}/cphalcon/.temp
-  - (cd cphalcon/build; bash install &>/dev/null)
-  - ( cd cphalcon; zephir fullclean && zephir generate $ZEND_BACKEND )
-  - ( cd cphalcon/ext; export CFLAGS="-g3 -O1 -std=gnu90 -Wall -DZEPHIR_RELEASE=1"; /usr/bin/phpize &> /dev/null && ./configure --silent --enable-phalcon &> /dev/null && make --silent -j3 &> /dev/null && make --silent install )
+  - ( cd cphalcon; zephir fullclean && zephir generate $ZEND_BACKEND &> /dev/null )
+  - ( cd cphalcon/ext; export CFLAGS="-g3 -O1 -std=gnu90 -Wall -DZEPHIR_RELEASE=0"; phpize &> /dev/null && ./configure --silent --enable-phalcon &> /dev/null && make --silent -j"$(getconf _NPROCESSORS_ONLN)" &> /dev/null && make --silent install )
   - phpenv config-add cphalcon/tests/_ci/phalcon.ini
   - php --ri phalcon
 
 script:
-  - vendor/bin/phpcs --standard=PSR2 --report=emacs --extensions=php --warning-severity=0 src/
+  - vendor/bin/phpcs
   - vendor/bin/codecept build
   - vendor/bin/codecept run
 
