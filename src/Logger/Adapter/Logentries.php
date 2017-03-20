@@ -4,7 +4,7 @@
  +------------------------------------------------------------------------+
  | Phalcon Framework                                                      |
  +------------------------------------------------------------------------+
- | Copyright (c) 2015-2016 Phalcon Team (https://www.phalconphp.com)      |
+ | Copyright (c) 2015-2017 Phalcon Team (https://www.phalconphp.com)      |
  +------------------------------------------------------------------------+
  | This source file is subject to the New BSD License that is bundled     |
  | with this package in the file docs/LICENSE.txt.                        |
@@ -20,9 +20,9 @@
 namespace Phalcon\Logger\Adapter;
 
 use Phalcon\Logger\Adapter;
-use Phalcon\Logger\AdapterInterface;
 use Phalcon\Logger\Exception;
 use InvalidArgumentException;
+use Phalcon\Logger\AdapterInterface;
 use Phalcon\Logger\Formatter\Line as LineFormatter;
 
 /**

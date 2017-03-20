@@ -11,8 +11,8 @@ use Phalcon\Logger\Adapter\Logentries;
  *
  * Phalcon Framework
  *
- * @copyright (c) 2011-2016 Phalcon Team
- * @link      http://www.phalconphp.com
+ * @copyright (c) 2011-2017 Phalcon Team
+ * @link      https://www.phalconphp.com
  * @author    Serghei Iakovlev <serghei@phalconphp.com>
  * @package   Phalcon\Tests\Logger\Adapter
  *

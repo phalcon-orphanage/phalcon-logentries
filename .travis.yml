@@ -1,7 +1,7 @@
 language: php
 
-sudo: required
-dist: precise
+sudo: false
+dist: trusty
 
 php:
   - 5.5
@@ -16,37 +16,28 @@ cache:
   ccache: true
   timeout: 691200
   directories:
-    - .temp
     - vendor
-    - $HOME/.ccache
     - $HOME/.composer/cache
 
 env:
   matrix:
     - PHALCON_VERSION="3.0.x"
-    - PHALCON_VERSION="v3.0.1"
+    - PHALCON_VERSION="v3.0.4"
 
 before_install:
-  - phpenv config-rm xdebug.ini
-  - composer self-update -q
+  - phpenv config-rm xdebug.ini || true
+  - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
   - travis_retry composer install --prefer-dist --no-interaction --ignore-platform-reqs
-  - git clone --depth=1 --branch=${PHALCON_VERSION} https://github.com/phalcon/cphalcon.git
+  - git clone --depth=1 -v --branch=${PHALCON_VERSION} https://github.com/phalcon/cphalcon.git
 
 install:
   - (cd cphalcon/build; bash install &>/dev/null)
-  - phpenv config-add ./tests/_ci/phalcon.ini &> /dev/null
-  - php --ri phalcon
+  - phpenv config-add cphalcon/tests/_ci/phalcon.ini
 
 script:
-  - vendor/bin/phpcs --standard=PSR2 --report=emacs --extensions=php --warning-severity=0 src/
+  - vendor/bin/phpcs
   - vendor/bin/codecept build
   - vendor/bin/codecept run
-
-addons:
-  apt:
-    packages:
-      - gdb
-      - re2c
 
 notifications:
   email:
