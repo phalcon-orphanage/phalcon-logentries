@@ -1,12 +1,16 @@
 language: php
 
 sudo: required
-dist: precise
+dist: trusty
 
 php:
   - 5.5
   - 5.6
-  - 7.0
+
+matrix:
+  include:
+    - php: 7.0
+      env: ZEND_BACKEND="--backend=ZendEngine3"
 
 git:
   depth: 1
@@ -22,19 +26,31 @@ cache:
     - $HOME/.composer/cache
 
 env:
+  global:
+    - ZEND_DONT_UNLOAD_MODULES=1
+    - CC="ccache gcc"
+    - PATH="$PATH:~/bin"
+    - PHALCON_VERSION="v3.0.3"
   matrix:
     - PHALCON_VERSION="3.0.x"
-    - PHALCON_VERSION="v3.0.1"
+    - PHALCON_VERSION="v3.0.4"
 
 before_install:
-  - phpenv config-rm xdebug.ini
-  - composer self-update -q
+  - phpenv config-rm xdebug.ini || true
+  - sudo ln -s /home/travis/.phpenv/versions/$(phpenv version-name)/bin/phpize /usr/bin/
+  - sudo ln -s /home/travis/.phpenv/versions/$(phpenv version-name)/bin/php-config /usr/bin/
+  - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
   - travis_retry composer install --prefer-dist --no-interaction --ignore-platform-reqs
-  - git clone --depth=1 --branch=${PHALCON_VERSION} https://github.com/phalcon/cphalcon.git
+  - git clone --depth=1 -v --branch=${PHALCON_VERSION} https://github.com/phalcon/cphalcon.git
+  - git clone --depth=1 -v https://github.com/phalcon/zephir.git ${TRAVIS_BUILD_DIR}/zephir
 
 install:
+  - bash ./tests/install_zephir.sh
+  - ln -s ${TRAVIS_BUILD_DIR}/.temp ${TRAVIS_BUILD_DIR}/cphalcon/.temp
   - (cd cphalcon/build; bash install &>/dev/null)
-  - phpenv config-add ./tests/_ci/phalcon.ini &> /dev/null
+  - ( cd cphalcon; zephir fullclean && zephir generate $ZEND_BACKEND )
+  - ( cd cphalcon/ext; export CFLAGS="-g3 -O1 -std=gnu90 -Wall -DZEPHIR_RELEASE=1"; /usr/bin/phpize &> /dev/null && ./configure --silent --enable-phalcon &> /dev/null && make --silent -j3 &> /dev/null && make --silent install )
+  - phpenv config-add cphalcon/tests/_ci/phalcon.ini
   - php --ri phalcon
 
 script:
