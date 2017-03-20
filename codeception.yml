@@ -27,8 +27,8 @@ extensions:
     enabled:
         - Codeception\Extension\RunFailed
 
-# Get params from .env file
+# Get params from environment
 params:
-    - .env
+    - environment
 
 error_level: "E_ALL"
