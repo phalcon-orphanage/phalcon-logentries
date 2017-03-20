@@ -1,8 +1,8 @@
 # Phalcon Logentries
 
-[![Software License](https://img.shields.io/badge/license-BSD--3-brightgreen.svg?style=flat-square)](docs/LICENSE.md)
-[![Build Status](https://img.shields.io/travis/sergeyklay/phalcon-logentries/master.svg?style=flat-square)](https://travis-ci.org/sergeyklay/phalcon-logentries)
-[![Total Downloads](https://img.shields.io/packagist/dt/sergeyklay/phalcon-logentries.svg?style=flat-square)](https://packagist.org/packages/sergeyklay/phalcon-logentries)
+[![Software License](https://img.shields.io/badge/license-BSD--3-brightgreen.svg?style=flat-square)](https://github.com/phalcon/phalcon-logentries/blob/master/LICENSE.txt)
+[![Build Status](https://img.shields.io/travis/phalcon/phalcon-logentries/master.svg?style=flat-square)](https://travis-ci.org/phalcon/phalcon-logentries)
+[![Total Downloads](https://img.shields.io/packagist/dt/phalcon/logentries.svg?style=flat-square)](https://packagist.org/packages/phalcon/logentries)
 
 Phalcon library to connect and make log entries using [Logentries][1].
 You can adapt it to your own needs or improve it if you want.
@@ -45,7 +45,7 @@ Create the composer.json file as follows:
 ```json
 {
     "require": {
-        "sergeyklay/phalcon-logentries": "~1.1"
+        "phalcon/logentries": "~1.2"
     }
 }
 ```
@@ -177,4 +177,4 @@ Phalcon Logentries is open-sourced software licensed under the [New BSD License]
 [4]: http://codeception.com/
 [5]: https://github.com/squizlabs/PHP_CodeSniffer
 [6]: http://codeception.com/docs/reference/Commands
-[7]: https://github.com/phalcon/forum/blob/master/docs/LICENSE.md
+[7]: https://github.com/phalcon/phalcon-logentries/blob/master/LICENSE.txt
