@@ -45,7 +45,7 @@ before_install:
   - git clone --depth=1 -v https://github.com/phalcon/zephir.git ${TRAVIS_BUILD_DIR}/zephir
 
 install:
-  - bash ./tests/install_zephir.sh
+  - bash ./tests/_ci/install_zephir.sh
   - ln -s ${TRAVIS_BUILD_DIR}/.temp ${TRAVIS_BUILD_DIR}/cphalcon/.temp
   - (cd cphalcon/build; bash install &>/dev/null)
   - ( cd cphalcon; zephir fullclean && zephir generate $ZEND_BACKEND )
