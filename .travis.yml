@@ -13,7 +13,6 @@ git:
 
 cache:
   apt: true
-  ccache: true
   timeout: 691200
   directories:
     - vendor
@@ -27,7 +26,7 @@ env:
 before_install:
   - phpenv config-rm xdebug.ini || true
   - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
-  - travis_retry composer install --prefer-dist --no-interaction --ignore-platform-reqs
+  - travis_retry composer install --quiet --no-interaction --no-ansi --no-progress --optimize-autoloader --dev --prefer-dist --no-suggest --ignore-platform-reqs
   - git clone --depth=1 -v --branch=${PHALCON_VERSION} https://github.com/phalcon/cphalcon.git
 
 install:
