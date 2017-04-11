@@ -21,7 +21,7 @@ cache:
 env:
   matrix:
     - PHALCON_VERSION="3.0.x"
-    - PHALCON_VERSION="v3.0.4"
+    - PHALCON_VERSION="v3.1.2"
 
 before_install:
   - phpenv config-rm xdebug.ini || true
